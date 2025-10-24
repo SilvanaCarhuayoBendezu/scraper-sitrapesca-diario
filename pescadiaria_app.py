@@ -69,7 +69,7 @@ def run_sitrap(razon_social_val, ruc_val, clave_val, card_index):
     WebDriverWait(driver, 35).until(EC.presence_of_element_located((By.CSS_SELECTOR, f"#ng-view > div > div > div.row > div:nth-child({card_index}) > div > a")))
     driver.execute_script(f"document.querySelector('#ng-view > div > div > div.row > div:nth-child({card_index}) > div > a').click();")
 
-    WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '/html/body/div/div[1]/nav/div/div[2]/ul[1]/li[8]/a')))
+    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, '/html/body/div/div[1]/nav/div/div[2]/ul[1]/li[8]/a')))
 
     dropdown = WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, "(//ul[@class='nav navbar-nav']/li[contains(@class, 'dropdown')])[6]")))
     dropdown.click()
@@ -86,17 +86,17 @@ def run_sitrap(razon_social_val, ruc_val, clave_val, card_index):
         if not cb.is_selected():
             cb.click()
 
-    radio = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, "//input[@type='radio' and @id='radio3' and @value='3' and @data-bind='checked:Model.TipoFormato']")))
+    radio = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//input[@type='radio' and @id='radio3' and @value='3' and @data-bind='checked:Model.TipoFormato']")))
     if not radio.is_selected():
         radio.click()
 
-    input_fecha = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "input[data-bind='value: Model.FechaInicio']")))
+    input_fecha = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "input[data-bind='value: Model.FechaInicio']")))
     input_fecha.clear()
     #input_fecha.send_keys(fecha_hoy)
     input_fecha.send_keys(fecha_inicio)
     #print(f"Descargando archivos del día: {fecha_inicio}")
 
-    end_fecha = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "input[data-bind='value: Model.FechaFin']")))
+    end_fecha = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "input[data-bind='value: Model.FechaFin']")))
     end_fecha.clear()
     end_fecha.send_keys(fecha_fin)
     #print(f"Descargando archivos del día: {end_fecha}")
@@ -106,7 +106,7 @@ def run_sitrap(razon_social_val, ruc_val, clave_val, card_index):
     boton = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[data-bind='click: fnVerReporte']")))
     boton.click()
 
-    time.sleep(25)  # espera básica a la descarga
+    time.sleep(30)  # espera básica a la descarga
     driver.quit()
 
 if __name__ == "__main__":
