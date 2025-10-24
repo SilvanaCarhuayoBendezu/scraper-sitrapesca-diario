@@ -1,69 +1,7 @@
 name: Test SITRAP scraper
 
 on:
-  workflow_dispatch:
-    inputs:
-      fecha_inicio:
-        description: "Fecha/hora inicio (DD/MM/AAAA HH:MM)"
-        required: true
-        default: "25/04/2025 00:00"
-        type: string
-      fecha_fin:
-        description: "Fecha/hora fin (opcional; si vacío usa hora actual)"
-        required: false
-        default: ""
-        type: string
-
-      # --- EXALMAR ---
-      exalmar_ruc:
-        description: "EXALMAR RUC"
-        required: false
-        default: ""
-        type: string
-      exalmar_doc:
-        description: "EXALMAR DOC"
-        required: false
-        default: ""
-        type: string
-      exalmar_clave:
-        description: "EXALMAR CLAVE"
-        required: false
-        default: ""
-        type: string
-
-      # --- ULTRAMAR ---
-      ultramar_ruc:
-        description: "ULTRAMAR RUC"
-        required: false
-        default: ""
-        type: string
-      ultramar_doc:
-        description: "ULTRAMAR DOC"
-        required: false
-        default: ""
-        type: string
-      ultramar_clave:
-        description: "ULTRAMAR CLAVE"
-        required: false
-        default: ""
-        type: string
-
-      # --- CENTINELA ---
-      centinela_ruc:
-        description: "CENTINELA RUC"
-        required: false
-        default: ""
-        type: string
-      centinela_doc:
-        description: "CENTINELA DOC"
-        required: false
-        default: ""
-        type: string
-      centinela_clave:
-        description: "CENTINELA CLAVE"
-        required: false
-        default: ""
-        type: string
+  workflow_dispatch: {}
 
 jobs:
   run-scraper:
@@ -81,35 +19,22 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
-          # Usa tu requirements.txt (incluye al menos selenium>=4.21.0)
-          pip install -r requirements.txt
+          # asegúrate de que tu requirements.txt incluya al menos: selenium>=4.21.0
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; else pip install "selenium>=4.21.0"; fi
 
       - name: Setup Chrome
         uses: browser-actions/setup-chrome@v1
 
-      - name: Show Chrome version
-        run: chrome --version
+      - name: Show versions
+        run: |
+          python --version
+          chrome --version || google-chrome --version || true
 
       - name: Run scraper (headless)
         env:
           DOWNLOAD_DIR: ${{ github.workspace }}/downloads
-
-          # Fechas
-          SITRAP_FECHA_INICIO: ${{ inputs.fecha_inicio }}
-          SITRAP_FECHA_FIN: ${{ inputs.fecha_fin }}
-
-          # Credenciales por input (sin secrets)
-          EXALMAR_RUC:   ${{ inputs.exalmar_ruc }}
-          EXALMAR_DOC:   ${{ inputs.exalmar_doc }}
-          EXALMAR_CLAVE: ${{ inputs.exalmar_clave }}
-
-          ULTRAMAR_RUC:   ${{ inputs.ultramar_ruc }}
-          ULTRAMAR_DOC:   ${{ inputs.ultramar_doc }}
-          ULTRAMAR_CLAVE: ${{ inputs.ultramar_clave }}
-
-          CENTINELA_RUC:   ${{ inputs.centinela_ruc }}
-          CENTINELA_DOC:   ${{ inputs.centinela_doc }}
-          CENTINELA_CLAVE: ${{ inputs.centinela_clave }}
+          # SITRAP_FECHA_INICIO: '25/04/2025 00:00'
+          # SITRAP_FECHA_FIN: '25/04/2025 23:59'
         run: |
           mkdir -p "$DOWNLOAD_DIR"
           python pescadiaria_app.py
