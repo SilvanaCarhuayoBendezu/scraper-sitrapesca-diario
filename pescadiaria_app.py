@@ -9,7 +9,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 #fecha_hoy = datetime.now().strftime("%d/%m/%Y") + " 00:00"
-fecha_hoy = '25/04/2025 00:00'
+#fecha_hoy = '25/04/2025 00:00'
+
+fecha_inicio = '25/04/2025' + " 00:00"
+fecha_fin = fecha_inicio[:10] + " " + str(datetime.now().hour) + ":" + f"{datetime.now().minute:02d}"
 
 DOWNLOAD_DIR = os.path.abspath(os.environ.get("DOWNLOAD_DIR", "./downloads"))
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
@@ -89,8 +92,15 @@ def run_sitrap(razon_social_val, ruc_val, clave_val, card_index):
 
     input_fecha = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "input[data-bind='value: Model.FechaInicio']")))
     input_fecha.clear()
-    input_fecha.send_keys(fecha_hoy)
-    print(f"Descargando archivos del día: {fecha_hoy}")
+    #input_fecha.send_keys(fecha_hoy)
+    input_fecha.send_keys(fecha_inicio)
+    print(f"Descargando archivos del día: {fecha_inicio}")
+
+    end_fecha = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "input[data-bind='value: Model.FechaFin']")))
+    end_fecha.clear()
+    end_fecha.send_keys(fecha_fin)
+    print(f"Descargando archivos del día: {end_fecha}")
+    
 
     boton = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[data-bind='click: fnVerReporte']")))
     boton.click()
