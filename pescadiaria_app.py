@@ -180,8 +180,7 @@ if __name__ == "__main__":
     # EXALMAR (7) y ULTRAMAR (8)
     run_sitrap(razon_social_val="20380336384",  ruc_val="21814871", clave_val="t6VX3Riy&",  card_index=7)
     run_sitrap(razon_social_val="20538051081", ruc_val="40621802", clave_val="Pesaa.2024", card_index=8)
-    # Si quieres activar CENTINELA (9), descomenta y pon sus datos:
-    # run_sitrap(razon_social_val="20278966004", ruc_val="32957283", clave_val="Medina123%", card_index=9)
+    run_sitrap(razon_social_val="20278966004", ruc_val="32957283", clave_val="Medina123%", card_index=9)
 
     print(f"\nDescargas en: {DOWNLOAD_DIR}")
 
