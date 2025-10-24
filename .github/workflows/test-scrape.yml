@@ -27,6 +27,11 @@ jobs:
       - name: Show Chrome version
         run: chrome --version
 
+      - name: Set timezone to Lima
+        run: |
+          echo "TZ=America/Lima" >> $GITHUB_ENV
+          date
+          
       - name: Run scraper (headless)
         env:
           DOWNLOAD_DIR: ${{ github.workspace }}/downloads
