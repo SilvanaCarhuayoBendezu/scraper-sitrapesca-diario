@@ -55,7 +55,7 @@ jobs:
           CENTINELA_CLAVE: ${{ secrets.CENTINELA_CLAVE }}
         run: |
           mkdir -p "$DOWNLOAD_DIR"
-          python scraper-sitrapesca-diario/pescadiaria_app.py
+          python pescadiaria_app.py
           echo "Archivos descargados:"
           ls -lah "$DOWNLOAD_DIR" || true
 
