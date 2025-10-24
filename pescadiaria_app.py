@@ -191,7 +191,7 @@ if __name__ == "__main__":
         # (nombre, ruc, doc, clave, card_index_en_dashboard)
         ("EXALMAR",  exalmar_ruc,  exalmar_doc,  exalmar_clave,  7),
         ("ULTRAMAR", ultramar_ruc, ultramar_doc, ultramar_clave, 8),
-        ("CENTINELA", centinela_ruc, centinela_doc, centinela_clave, 9),
+        #("CENTINELA", centinela_ruc, centinela_doc, centinela_clave, 9),
     ]
 
     for (nombre, ruc, doc, clave, card_idx) in empresas:
