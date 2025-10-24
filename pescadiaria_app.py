@@ -86,7 +86,7 @@ def run_sitrap(razon_social_val, ruc_val, clave_val, card_index):
         if not cb.is_selected():
             cb.click()
 
-    radio = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//input[@type='radio' and @id='radio2' and @value='1' and @data-bind='checked:Model.TipoFormato']")))
+    radio = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//input[@type='radio' and @id='radio3' and @value='3' and @data-bind='checked:Model.TipoFormato']")))
     if not radio.is_selected():
         radio.click()
 
