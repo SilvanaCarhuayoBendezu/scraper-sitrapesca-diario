@@ -1,0 +1,116 @@
+name: SITRAP v2 - Scrape & Upload
+
+on:
+  workflow_dispatch: {}
+  # (Opcional) Programa diario 06:30 Lima:
+  # schedule:
+  #   - cron: "30 11 * * *"  # 11:30 UTC = 06:30 Lima (UTC-5)
+
+jobs:
+  run-scraper:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          # Si tienes un requirements específico en la carpeta v2, descomenta la siguiente línea:
+          # pip install -r sitrap-app-v2/requirements.txt
+          # Para ser autosuficientes instalamos selenium:
+          pip install "selenium>=4.21.0"
+
+      - name: Setup Chrome (for Selenium)
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Show Chrome version
+        run: chrome --version
+
+      - name: Run scraper (headless)
+        env:
+          DOWNLOAD_DIR: ${{ github.workspace }}/downloads
+
+          # ====== FECHAS (puedes editarlas al lanzar el workflow) ======
+          SITRAP_FECHA_INICIO: '25/04/2025 00:00'
+          # SITRAP_FECHA_FIN: '25/04/2025 23:59'  # opcional; si no se define, el script usa la hora actual
+
+          # ====== CREDENCIALES (usa Secrets del repo) ======
+          EXALMAR_RUC:   ${{ secrets.EXALMAR_RUC }}
+          EXALMAR_DOC:   ${{ secrets.EXALMAR_DOC }}
+          EXALMAR_CLAVE: ${{ secrets.EXALMAR_CLAVE }}
+
+          ULTRAMAR_RUC:   ${{ secrets.ULTRAMAR_RUC }}
+          ULTRAMAR_DOC:   ${{ secrets.ULTRAMAR_DOC }}
+          ULTRAMAR_CLAVE: ${{ secrets.ULTRAMAR_CLAVE }}
+
+          CENTINELA_RUC:   ${{ secrets.CENTINELA_RUC }}
+          CENTINELA_DOC:   ${{ secrets.CENTINELA_DOC }}
+          CENTINELA_CLAVE: ${{ secrets.CENTINELA_CLAVE }}
+        run: |
+          mkdir -p "$DOWNLOAD_DIR"
+          python scraper-sitrapesca-diario/pescadiaria_app.py
+          echo "Archivos descargados:"
+          ls -lah "$DOWNLOAD_DIR" || true
+
+      # ========= OPCIÓN A: Subida a Azure Blob usando RBAC (recomendada) =========
+      # Requiere secrets:
+      # AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_CLIENT_SECRET, AZURE_SUBSCRIPTION_ID,
+      # AZURE_STORAGE_ACCOUNT, AZURE_STORAGE_CONTAINER
+      - name: Azure login (RBAC)
+        if: always()
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Upload to Azure Blob (RBAC)
+        if: always()
+        run: |
+          # Fecha en Lima (UTC-5)
+          TODAY=$(TZ=America/Lima date +"%Y/%m/%d")
+          DEST="sitrap/${TODAY}"
+          echo "Subiendo a ruta virtual: $DEST"
+
+          # Sube todos los CSV (ajusta el patrón si fuera necesario)
+          az storage blob upload-batch \
+            --auth-mode login \
+            --account-name "${{ secrets.AZURE_STORAGE_ACCOUNT }}" \
+            --destination "${{ secrets.AZURE_STORAGE_CONTAINER }}/${DEST}" \
+            --source downloads \
+            --pattern "*.csv" \
+            --overwrite
+
+      # ========= OPCIÓN B: Subida con Connection String (rápida) =========
+      # Habilita este bloque SOLO si usas AZURE_STORAGE_CONNECTION_STRING y AZURE_STORAGE_CONTAINER
+      # - name: Upload to Azure Blob (Connection String)
+      #   if: always()
+      #   env:
+      #     AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+      #   run: |
+      #     TODAY=$(TZ=America/Lima date +"%Y/%m/%d")
+      #     DEST="sitrap/${TODAY}"
+      #     echo "Subiendo a ruta virtual: $DEST"
+      #     az storage blob upload-batch \
+      #       --connection-string "$AZURE_STORAGE_CONNECTION_STRING" \
+      #       --destination "${{ secrets.AZURE_STORAGE_CONTAINER }}/${DEST}" \
+      #       --source downloads \
+      #       --pattern "*.csv" \
+      #       --overwrite
+
+      # (Opcional) Publica artefacto para verificación manual
+      - name: Upload downloads as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sitrap-descargas
+          path: downloads/
+          if-no-files-found: warn
+          retention-days: 7
